@@ -15,7 +15,7 @@ bool Ensolement::computeEnsolement() {
     // Initialisation des données
     int currentYear = 0;
     int nbLeaf = 0;
-    maxYear = 4;
+    maxYear = 2;
 
     // Initialise la taille des parcelles
     initParcelles();
@@ -57,14 +57,14 @@ bool Ensolement::initParcelles () {
     parcelles["C"] = 1;
    // parcelles["D"] = 5;
     //parcelles["E"] = 3;
-    parcelles["F"] = 1;
+    parcelles["F"] = 2;
     //parcelles["G"] = 2;
     //parcelles["H"] = 2;
     return true;
 }
 
 bool Ensolement::initCultures () {
-    Culture ble = {"ble", 4, 6, 1, {}};
+    Culture ble = {"ble", 2, 6, 1, {}};
     //Culture orge = {"orge", 2, 5, 2, {"ble"}};
     //Culture colza = {"colza", 4, 7, 3, {"orge"}};
     cultures[ble.name] = ble;
@@ -73,11 +73,11 @@ bool Ensolement::initCultures () {
     return true;
 }
 
-bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcellesRestantes, Assignations& assignation, unsigned int currentYear, int& nbLeaf, std::string prefix) {
+bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcellesRestantes, Assignations& assignation, unsigned int currentYear, int& nbLeaf, std::string prefix) const {
     bool result;
 
     // Récupération de la prochaine culture a traiter
-    Culture& culture = cultures[culturesRestantes.begin()->first];
+    const Culture& culture = cultures.at(culturesRestantes.begin()->first);
 
     // Récupération de l'historique des parcelles de cette culture
     Assignation& current = assignation[culture.name];
@@ -92,7 +92,7 @@ bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcelle
     for(unsigned int index(0); index < unusedKey.size(); index++) {
         const std::string& parcelleName = unusedKey[index];
         float parcelleSize = parcellesRestantes[parcelleName];
-        if (validateFromPreviousYear(parcelleName, current, culture, currentYear) == true) {
+        if (validateFromPreviousYear(parcelleName, current, culture, currentYear, assignation) == true) {
             float taille = current.surfaceCouverte[currentYear] + parcelleSize;
 
             if (taille <= culture.maxSurface) {
@@ -114,7 +114,7 @@ bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcelle
                             if (result == false) {
                                 std::cout << prefix+"  -" << cultures.begin()->first << std::endl;
                                 currentYear--;
-                                culturesRestantes[current.nameCulture] = cultures[current.nameCulture];
+                                culturesRestantes[current.nameCulture] = cultures.at(current.nameCulture);
                             }
                         } else {
                             if (nbLeaf%100000 == 0) {
@@ -128,20 +128,21 @@ bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcelle
                         result = computeOneYear(culturesRestantes, parcellesRestantes, assignation, currentYear, nbLeaf, prefix);
                         if (result == false) {
                             std::cout << prefix+"-" << culturesRestantes.begin()->first << std::endl;
-                            culturesRestantes[current.nameCulture] = cultures[current.nameCulture];
+                            culturesRestantes[current.nameCulture] = cultures.at(current.nameCulture);
                         }
                     }
-                }
-                result = computeOneYear(culturesRestantes, parcellesRestantes, assignation, currentYear, nbLeaf, prefix);
-                if (result == false) {
-                    current.surfaceCouverte[currentYear] -= parcelleSize;
-                    parcellesRestantes[current.parcelles[currentYear].back()] = parcelles[current.parcelles[currentYear].back()];
-                    index++;
-                    unusedKey.insert(unusedKey.begin()+index, current.parcelles[currentYear].back());
-                    std::cout << prefix+"<-" << parcelleName << std::endl;
-                    current.parcelles[currentYear].pop_back();
                 } else {
-                    return true;
+                    result = computeOneYear(culturesRestantes, parcellesRestantes, assignation, currentYear, nbLeaf, prefix);
+                    if (result == false) {
+                        current.surfaceCouverte[currentYear] -= parcelleSize;
+                        parcellesRestantes[current.parcelles[currentYear].back()] = parcelles.at(current.parcelles[currentYear].back());
+                        index++;
+                        unusedKey.insert(unusedKey.begin()+index, current.parcelles[currentYear].back());
+                        std::cout << prefix+"<-" << parcelleName << std::endl;
+                        current.parcelles[currentYear].pop_back();
+                    } else {
+                        return true;
+                    }
                 }
             }
         }
@@ -153,13 +154,22 @@ bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcelle
     return false;
 }
 
-bool Ensolement::validateFromPreviousYear(const std::string& parcelleName, const Assignation& curentCulture, const Culture& defCulture, const int& currentYear) const {
-    // Vérification de ne pas avoir la même culture n années de suite
-    for (int yearBefore(1); yearBefore <= defCulture.anneeEntreCulture && currentYear - yearBefore >= 0; yearBefore++) {
-        int year = currentYear - yearBefore;
-        if (std::find(curentCulture.parcelles[year].begin(), curentCulture.parcelles[year].end(), parcelleName) !=
-                curentCulture.parcelles[year].end()) {
-            return false;
+bool Ensolement::validateFromPreviousYear(const std::string& parcelleName, const Assignation& curentCulture, const Culture& defCulture, const int& currentYear, const Assignations& assignations) const {
+    if (currentYear > 0) {
+        // Vérification de ne pas avoir la même culture n années de suite
+        for (int yearBefore(1); yearBefore <= defCulture.anneeEntreCulture && currentYear - yearBefore >= 0; yearBefore++) {
+            int year = currentYear - yearBefore;
+            if (std::find(curentCulture.parcelles[year].begin(), curentCulture.parcelles[year].end(), parcelleName) !=
+                    curentCulture.parcelles[year].end()) {
+                return false;
+            }
+        }
+        // Vérification que la culture précedente ne soit pas interdite
+        for (auto& it: defCulture.precedentesCulturesInterdites) {
+            const std::vector<std::string>& forbidenCulture = assignations.at(it).parcelles[currentYear - 1];
+            if (std::find(forbidenCulture.begin(), forbidenCulture.end(), parcelleName) != forbidenCulture.end()) {
+                return false;
+            }
         }
     }
     return true;

@@ -1,0 +1,30 @@
+{
+    "version": "0.1.0",
+    "command": "g++",
+    "args": ["-Wall", "-std=c++11", "-Wextra", "-g", "src/main.cpp", "-o", "bin/ensolement"],
+    "showOutput": "silent",
+    "problemMatcher": [{
+        "owner": "cpp",
+        "fileLocation": ["relative", "${workspaceRoot}"],
+        "severity": "error",
+        "pattern": {
+            "regexp": "^(.*):(\\d+):(\\d+):\\s+(erreur):\\s+(.*)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "message": 5
+        }
+    },{
+        "owner": "cpp",
+        "fileLocation": ["relative", "${workspaceRoot}"],
+        "severity": "warning",
+        "pattern": {
+            "regexp": "^(.*):(\\d+):(\\d+):\\s+(attention ):\\s+(.*)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "message": 5
+        }
+    }
+    ]
+}
