@@ -1,0 +1,6 @@
+Voici la liste des évolutions futures:
+
+- Ajouter la contrainte qu'une culture ne peut pas venir après une autre
+- Lire les cultures et les parcelles via un fichier de configuration
+- Accepter l'historique des parcelles via fichier de configuration
+- Améliorer l'algorithme
