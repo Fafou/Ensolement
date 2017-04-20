@@ -1,7 +1,6 @@
 Voici la liste des évolutions futures:
 
-- Bug avec 3 parcelles {1, 1, 2}, une culture blé 2h min une parcelle est assignée deux fois
-- Tester la contrainte qu'une culture ne peut pas venir après une autre
 - Lire les cultures et les parcelles via un fichier de configuration
 - Accepter l'historique des parcelles via fichier de configuration
+- Utiliser toutes les parecelles chaques années
 - Améliorer l'algorithme

@@ -52,24 +52,24 @@ bool Ensolement::computeEnsolement() {
 }
 
 bool Ensolement::initParcelles () {
-    //parcelles["A"] = 2;
+    parcelles["A"] = 2;
     parcelles["B"] = 1;
     parcelles["C"] = 1;
-   // parcelles["D"] = 5;
-    //parcelles["E"] = 3;
+    parcelles["D"] = 5;
+    parcelles["E"] = 3;
     parcelles["F"] = 2;
-    //parcelles["G"] = 2;
-    //parcelles["H"] = 2;
+    parcelles["G"] = 2;
+    parcelles["H"] = 2;
     return true;
 }
 
 bool Ensolement::initCultures () {
-    Culture ble = {"ble", 2, 6, 1, {}};
-    //Culture orge = {"orge", 2, 5, 2, {"ble"}};
-    //Culture colza = {"colza", 4, 7, 3, {"orge"}};
+    Culture ble = {"ble", 2, 6, 1, {"ble"}};
+    Culture orge = {"orge", 2, 5, 2, {"ble"}};
+    Culture colza = {"colza", 4, 7, 3, {"orge"}};
     cultures[ble.name] = ble;
-    //cultures[orge.name] = orge;
-    //cultures[colza.name] = colza;
+    cultures[orge.name] = orge;
+    cultures[colza.name] = colza;
     return true;
 }
 
@@ -115,12 +115,14 @@ bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcelle
                                 std::cout << prefix+"  -" << cultures.begin()->first << std::endl;
                                 currentYear--;
                                 culturesRestantes[current.nameCulture] = cultures.at(current.nameCulture);
+                            } else {
+                                return true;
                             }
                         } else {
+                            nbLeaf++;
                             if (nbLeaf%100000 == 0) {
                                 std::cout << "Nb leaf : " << nbLeaf << " en " << double(std::clock() - begin)/CLOCKS_PER_SEC << "s" << std::endl;
                             }
-                            nbLeaf++;
                             return true;
                         }
                     } else {
@@ -129,6 +131,8 @@ bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcelle
                         if (result == false) {
                             std::cout << prefix+"-" << culturesRestantes.begin()->first << std::endl;
                             culturesRestantes[current.nameCulture] = cultures.at(current.nameCulture);
+                        } else {
+                            return true;
                         }
                     }
                 } else {
