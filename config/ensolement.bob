@@ -1,0 +1,41 @@
+#
+# Ce fichier permet de renseigner les cultures souhaités, ainsi que les parcelles.
+#
+
+[Configuration]
+# Permet de renseigner certaines variables de Configuration
+#
+# Duree: <Nombre d'années dont l'ensolement doit être calculé>
+Duree: 3
+
+[Cultures]
+# Liste les cultures souhaités avec le format :
+#
+# Nom: <Nom de la culture>,
+# Min: <Hectare minimum souhaité, les nombres décimaux sont écrits avec des .>,
+# Max: <Hectare maximum souhaité, les nombres décimaux sont écrits avec des .>,
+# Pause: <Nombre d'années avant de pouvoir replanter la même culture sur une parcelle>,
+# Interdites: <Nom d'un culture>, <Nom d'une autre culture>
+#
+# Exemple de cultures:
+# Nom: Blé,  Min:  2.5, Max: 4, Pause: 1, Interdites:
+Nom: Orge,  Min:  3, Max: 3.5, Pause: 0, Interdites: Blé, Colza
+Nom: Blé,  Min:  2, Max: 4.5, Pause: 1, Interdites: Orge
+Nom: Colza,  Min:  5, Max: 7, Pause: 4
+
+[Parcelles]
+# Liste des parcelles souhaités avec le format :
+#
+# Nom: <Identifiant unique de la parcelle>
+# Taille: <Nombre d'hectares de la parcelle, les nombres décimaux sont écrits avec des .>
+#
+# Exemple de parcelles:
+# Nom: Parcelle 1, Taille: 2.3
+Nom: A1, Taille: 1
+Nom: A2, Taille: 3
+Nom: A3, Taille: 2
+Nom: B, Taille: 1
+Nom: C1, Taille: 2
+Nom: C2, Taille: 4
+Nom: D, Taille: 1
+Nom: E, Taille: 1

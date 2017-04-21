@@ -1,7 +1,7 @@
 {
     "version": "0.1.0",
     "command": "g++",
-    "args": ["-Wall", "-std=c++11", "-Wextra", "-g", "src/main.cpp", "-o", "bin/ensolement"],
+    "args": ["-Wall", "-std=c++11", "-Wextra", "-O2", "src/main.cpp", "src/configuration/parseur.cpp", "-o", "bin/ensolement"],
     "showOutput": "silent",
     "problemMatcher": [{
         "owner": "cpp",

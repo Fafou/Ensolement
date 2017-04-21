@@ -1,29 +1,26 @@
 
 
 CC=g++
-CFLAGS=-std=c++11 -Wall -Wextra -O3 
-CFLAGS_DEBUG=-std=c++11 -Wall -Wextra -g
+CFLAGS=-std=c++11 -Wall -Wextra
 LDFLAGS=
-EXEC=ensolement
 
-all: bin/$(EXEC)
+all: CFLAGS += -O2
+all: bin/ensolement
 
-debug: bin/$(EXEC)Debug
+debug: CFLAGS += -g
+debug: bin/ensolement
 
-bin/ensolement: build/main.o
+bin/ensolement: build/main.o build/parseur.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-bin/ensolementDebug: build/mainDebug.o
-	$(CC) -o $@ $^ $(LDFLAGS)
-
-build/%.o: src/%.cpp
+build/main.o: src/main.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-build/%Debug.o: src/%.cpp
-	$(CC) -o $@ -c $< $(CFLAGS_DEBUG)
+build/parseur.o: src/configuration/parseur.cpp
+	$(CC) -o $@ -c $< $(CFLAGS)
 
 clean:
 	rm -rf build/*
 
 cleanAll: clean
-	rm -rf $(EXEC)
+	rm -rf bin/*

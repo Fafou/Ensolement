@@ -1,6 +1,6 @@
 Voici la liste des évolutions futures:
 
-- Lire les cultures et les parcelles via un fichier de configuration
 - Accepter l'historique des parcelles via fichier de configuration
+- Ajouter valider le fait que toutes les cultures interditent existent dans la liste des cultures
 - Utiliser toutes les parecelles chaques années
 - Améliorer l'algorithme

@@ -1,13 +1,16 @@
 /*
-Petit exécutable pour permettre de calculer l'ensolement'
+Petit exécutable pour permettre de calculer l'ensolement
 */
 
 #include "main.h"
 #include <iostream>
 #include <algorithm>
+#include "configuration/parseur.h"
 
-Ensolement::Ensolement() : parcelles(), cultures(), maxYear(1), begin(0) {
-
+Ensolement::Ensolement(const std::string& fichierConfiguration) : parseur(fichierConfiguration), begin(0) {
+    parcelles = parseur.getParcelles();
+    cultures = parseur.getCultures();
+    maxYear = parseur.getDuree();
 }
 
 bool Ensolement::computeEnsolement() {
@@ -15,13 +18,6 @@ bool Ensolement::computeEnsolement() {
     // Initialisation des données
     int currentYear = 0;
     int nbLeaf = 0;
-    maxYear = 2;
-
-    // Initialise la taille des parcelles
-    initParcelles();
-
-    // Initialise les cultures
-    initCultures();
 
     std::cout << "Début du calcul de l'ensolement." << std::endl;
     Cultures culturesRestantes = cultures;
@@ -49,28 +45,6 @@ bool Ensolement::computeEnsolement() {
     }
     
     return result;
-}
-
-bool Ensolement::initParcelles () {
-    parcelles["A"] = 2;
-    parcelles["B"] = 1;
-    parcelles["C"] = 1;
-    parcelles["D"] = 5;
-    parcelles["E"] = 3;
-    parcelles["F"] = 2;
-    parcelles["G"] = 2;
-    parcelles["H"] = 2;
-    return true;
-}
-
-bool Ensolement::initCultures () {
-    Culture ble = {"ble", 2, 6, 1, {"ble"}};
-    Culture orge = {"orge", 2, 5, 2, {"ble"}};
-    Culture colza = {"colza", 4, 7, 3, {"orge"}};
-    cultures[ble.name] = ble;
-    cultures[orge.name] = orge;
-    cultures[colza.name] = colza;
-    return true;
 }
 
 bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcellesRestantes, Assignations& assignation, unsigned int currentYear, int& nbLeaf, std::string prefix) const {
@@ -112,7 +86,7 @@ bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcelle
                             std::cout << prefix+"  +" << cultures.begin()->first << std::endl;
                             result = computeOneYear(culturesRestantesBis, parcellesRestantesBis, assignation, currentYear, nbLeaf, prefix+"  ");
                             if (result == false) {
-                                std::cout << prefix+"  -" << cultures.begin()->first << std::endl;
+                                std::cout << prefix+"  *" << std::endl;
                                 currentYear--;
                                 culturesRestantes[current.nameCulture] = cultures.at(current.nameCulture);
                             } else {
@@ -129,7 +103,7 @@ bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcelle
                         std::cout << prefix+"+" << culturesRestantes.begin()->first << std::endl;
                         result = computeOneYear(culturesRestantes, parcellesRestantes, assignation, currentYear, nbLeaf, prefix);
                         if (result == false) {
-                            std::cout << prefix+"-" << culturesRestantes.begin()->first << std::endl;
+                            std::cout << prefix+"*" << std::endl;
                             culturesRestantes[current.nameCulture] = cultures.at(current.nameCulture);
                         } else {
                             return true;
@@ -142,7 +116,7 @@ bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcelle
                         parcellesRestantes[current.parcelles[currentYear].back()] = parcelles.at(current.parcelles[currentYear].back());
                         index++;
                         unusedKey.insert(unusedKey.begin()+index, current.parcelles[currentYear].back());
-                        std::cout << prefix+"<-" << parcelleName << std::endl;
+                        std::cout << prefix+"X" << std::endl;
                         current.parcelles[currentYear].pop_back();
                     } else {
                         return true;
@@ -151,10 +125,10 @@ bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcelle
             }
         }
     }
+    nbLeaf++;
     if (nbLeaf%100000 == 0) {
         std::cout << "Nb leaf : " << nbLeaf << " en " << double(std::clock() - begin)/CLOCKS_PER_SEC << "s" << std::endl;
     }
-    nbLeaf++;
     return false;
 }
 
@@ -196,14 +170,21 @@ void Ensolement::printResult(const Assignations& assignation, const int nbLeaf) 
 }
 
 int main (int argc, char * argv  []) {
-    if (argc > 1) {
-        std::cout << "Unused arguments : ";
-        for (int i(1); i<argc; i++) {
+    if (argc < 2) {
+        std::cout << "Le programme prend en parametre le chemin vers le fichier de configuration :" << std::endl;
+        std::cout << argv[0] << " configuration.bob" << std::endl;
+        return -1;
+    } else if (argc > 2) {
+        std::cout << "Le programme prend en parametre le chemin vers le fichier de configuration :" << std::endl;
+        std::cout << argv[0] << " configuration.bob" << std::endl;
+        std::cout << "Arguments en trop: ";
+        for (int i(2); i<argc; i++) {
             std::cout << argv[i] << " ";
         }
         std::cout << std::endl;
+        return -1;
     }
-    Ensolement ensolement;
+    Ensolement ensolement(argv[1]);
     ensolement.computeEnsolement();
     return 0;
 }
