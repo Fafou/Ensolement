@@ -1,6 +1,9 @@
 Voici la liste des évolutions futures:
 
+- Ecrire des tests
 - Accepter l'historique des parcelles via fichier de configuration
+- Une culture peut rester plusieurs années sur une parcelle
 - Ajouter valider le fait que toutes les cultures interditent existent dans la liste des cultures
 - Utiliser toutes les parecelles chaques années
 - Améliorer l'algorithme
+- Certaines parcelles ne sont pas adapter pour certaines cultures
