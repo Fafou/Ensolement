@@ -49,7 +49,7 @@ void Parseur::lireConfiguration() {
 void Parseur::parseCultures() {
     std::string line;
     std::string token;
-    std::cout << "Ajout des cultures:" <<std::endl;
+    std::cout << "\nAjout des cultures:" << std::endl;
     while(std::getline(fichier, line)) {
         if (validerLigne(line)) {
             if (line.front() == '[') {
@@ -92,7 +92,7 @@ void Parseur::parseParcelles() {
     std::string token;
     std::string nom;
     float taille(0);
-    std::cout << "Ajout des parcelles:" << std::endl;
+    std::cout << "\nAjout des parcelles:" << std::endl;
     while(std::getline(fichier, line)) {
         if (validerLigne(line)) {
             if (line.front() == '[') {
@@ -116,6 +116,7 @@ void Parseur::parseParcelles() {
             parcelles[nom] = taille;
         }
     }
+    std::cout << std::endl;
 }
 
 void Parseur::parseDuree() {

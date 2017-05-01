@@ -21,9 +21,24 @@ protected:
     int nbLeaf;
 
 public:
+    /*
+    Constructeur, utilise le parseur de configuration pour initialiser les attributs en fonction du fichier de configuration passé en argument
+    */
     Ensolement(const std::string& fichierConfiguration);
+
+    /*
+    Fonction pour initialiser les données, essentiellement utilisé pour les tests
+    */
     void initDatas(Parcelles& parcelles, Cultures& cultures, unsigned int maxYear);
+
+    /*
+    Fonction pour calculer l'ensolement
+    */
     bool computeEnsolement(Assignations& assignation);
+
+    /*
+    Fonction pour afficher le résultat du calcul
+    */
     void printResult(const Assignations& assignation) const;
 
 protected:

@@ -8,25 +8,43 @@ Petit exécutable pour permettre de calculer l'ensolement
 #include <iterator>
 #include "configuration/parseur.h"
 
+/*
+Macro pour afficher l'arbre de recherche seulement si le flag ENSOLEMENT_VERBOSE est renseigné à la compilation
+*/
 #ifdef ENSOLEMENT_VERBOSE // Ajoute des logs si le flag ENSOLEMENT_VERBOSE est ajouté à la compilation
     #define LOG(message) std::cout << message << std::endl
 #else
     #define LOG(message) // message Ne fait rien du message sans le flag
 #endif
 
+/*
+Macro pour annuler la dernière assignation de parcelle car aucune solution n'a été trouvée
+*/
+#define ANNULER_DERNIERE_ASSIGNATION() \
+    current.surfaceCouverte[currentYear] -= parcelleSize;\
+    parcellesRestantes[current.parcelles[currentYear].back()] = parcelles.at(current.parcelles[currentYear].back());\
+    curIter++;\
+    current.parcelles[currentYear].pop_back();
+
+/*
+Constructeur, utilise le parseur de configuration pour initialiser les attributs en fonction du fichier de configuration passé en argument
+*/
 Ensolement::Ensolement(const std::string& fichierConfiguration) : parseur(fichierConfiguration), begin(0), nbLeaf(0) {
     parcelles = parseur.getParcelles();
     cultures = parseur.getCultures();
     maxYear = parseur.getDuree();
 }
 
+/*
+Fonction pour initialiser les données, essentiellement utilisé pour les tests
+*/
 void Ensolement::initDatas(Parcelles& parcelles, Cultures& cultures, unsigned int maxYear) {
     this->parcelles = parcelles;
     this->cultures = cultures;
     this->maxYear = maxYear;
     nbLeaf = 0;
 }
-
+ 
 bool Ensolement::computeEnsolement(Assignations& assignation) {
 
     // Initialisation des données
@@ -52,11 +70,11 @@ bool Ensolement::computeEnsolement(Assignations& assignation) {
 
     // Affichage du résultat
     if (result == true) {
-        std::cout << "Solution trouvée ! Chemins parcourus : " << nbLeaf << ", en " <<
-        double(std::clock() - begin)/CLOCKS_PER_SEC << "s" << std::endl;
+        std::cout << "\nSolution trouvée ! Chemins parcourus : " << nbLeaf << ", en " <<
+        double(std::clock() - begin)/CLOCKS_PER_SEC << "s\n" << std::endl;
     } else {
-        std::cout << "Contraintes trop fortes, il n'y a pas de solutions ! Chemins parcourus : " << nbLeaf << ", en " <<
-        double(std::clock() - begin)/CLOCKS_PER_SEC << "s" << std::endl;
+        std::cout << "\nContraintes trop fortes, il n'y a pas de solutions ! Chemins parcourus : " << nbLeaf << ", en " <<
+        double(std::clock() - begin)/CLOCKS_PER_SEC << "s\n" << std::endl;
     }
     
     return result;
@@ -79,7 +97,6 @@ bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcelle
         float parcelleSize = parcellesRestantes[parcelleName];
         if (validateFromPreviousYear(parcelleName, current, culture, currentYear, assignation) == true) {
             float taille = current.surfaceCouverte[currentYear] + parcelleSize;
-
             if (taille <= culture.maxSurface) {
                 LOG(prefix+"->" << parcelleName);
                 current.parcelles[currentYear].push_back(parcelleName);
@@ -98,18 +115,15 @@ bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcelle
                                 LOG(prefix+"  *");
                                 currentYear--;
                                 culturesRestantes[current.nameCulture] = cultures.at(current.nameCulture);
-                                current.surfaceCouverte[currentYear] -= parcelleSize;
-                                parcellesRestantes[current.parcelles[currentYear].back()] = parcelles.at(current.parcelles[currentYear].back());
-                                curIter++;
+                                ANNULER_DERNIERE_ASSIGNATION();
                                 LOG(prefix+"X");
-                                current.parcelles[currentYear].pop_back();
                             } else {
                                 return true;
                             }
                         } else {
                             nbLeaf++;
                             if (nbLeaf%100000 == 0) {
-                                std::cout << "Nb leaf : " << nbLeaf << " en " << double(std::clock() - begin)/CLOCKS_PER_SEC << "s" << std::endl;
+                                std::cout << "Possibilités explorées : " << nbLeaf << " en " << double(std::clock() - begin)/CLOCKS_PER_SEC << "s" << std::endl;
                             }
                             return true;
                         }
@@ -119,11 +133,8 @@ bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcelle
                         if (result == false) {
                             LOG(prefix+"*");
                             culturesRestantes[current.nameCulture] = cultures.at(current.nameCulture);
-                            current.surfaceCouverte[currentYear] -= parcelleSize;
-                            parcellesRestantes[current.parcelles[currentYear].back()] = parcelles.at(current.parcelles[currentYear].back());
-                            curIter++;
+                            ANNULER_DERNIERE_ASSIGNATION();
                             LOG(prefix+"X");
-                            current.parcelles[currentYear].pop_back();
                         } else {
                             return true;
                         }
@@ -131,11 +142,8 @@ bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcelle
                 } else {
                     result = computeOneYear(culturesRestantes, parcellesRestantes, assignation, currentYear, prefix);
                     if (result == false) {
-                        current.surfaceCouverte[currentYear] -= parcelleSize;
-                        parcellesRestantes[current.parcelles[currentYear].back()] = parcelles.at(current.parcelles[currentYear].back());
-                        curIter++;
+                        ANNULER_DERNIERE_ASSIGNATION();
                         LOG(prefix+"X");
-                        current.parcelles[currentYear].pop_back();
                     } else {
                         return true;
                     }
@@ -149,7 +157,7 @@ bool Ensolement::computeOneYear(Cultures& culturesRestantes, Parcelles& parcelle
     }
     nbLeaf++;
     if (nbLeaf%100000 == 0) {
-        std::cout << "Nb leaf : " << nbLeaf << " en " << double(std::clock() - begin)/CLOCKS_PER_SEC << "s" << std::endl;
+        std::cout << "Possibilités explorées : " << nbLeaf << " en " << double(std::clock() - begin)/CLOCKS_PER_SEC << "s" << std::endl;
     }
     return false;
 }
@@ -175,6 +183,10 @@ bool Ensolement::validateFromPreviousYear(const std::string& parcelleName, const
     return true;
 }
 
+
+/*
+Fonction pour afficher le résultat du calcul
+*/
 void Ensolement::printResult(const Assignations& assignation) const {
     std::cout << "Voila le résult : " << std::endl;
     for (unsigned int year(0); year < maxYear; year++) {
@@ -188,5 +200,5 @@ void Ensolement::printResult(const Assignations& assignation) const {
         }
     }
 
-    std::cout << nbLeaf << " chemins parcourus en " << double(std::clock() - begin)/CLOCKS_PER_SEC << "s" << std::endl;
+    std::cout << nbLeaf << " possibilités explorées  en " << double(std::clock() - begin)/CLOCKS_PER_SEC << "s" << std::endl;
 }
