@@ -7,11 +7,11 @@ LDFLAGS=
 all: CFLAGS += -O2
 all: bin/ensolement
 
-debug: CFLAGS += -g
+debug: CFLAGS += -g -DENSOLEMENT_VERBOSE
 debug: bin/ensolement
 
-tests: CFLAGS += -g
-tests: bin/test
+test: CFLAGS += -g
+test: bin/test
 
 bin/test: build/mainTest.o build/test.o build/ensolement.o build/parseur.o
 	$(CC) -o $@ $^ $(LDFLAGS)

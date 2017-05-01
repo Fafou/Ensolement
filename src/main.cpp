@@ -20,7 +20,13 @@ int main (int argc, char * argv  []) {
         std::cout << std::endl;
         return -1;
     }
+    Assignations assignation;
+
     Ensolement ensolement(argv[1]);
-    ensolement.computeEnsolement();
+    bool result = ensolement.computeEnsolement(assignation);
+    
+    if (result == true) {
+        ensolement.printResult(assignation);
+    }
     return 0;
 }

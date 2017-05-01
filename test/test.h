@@ -5,7 +5,6 @@ Classe de test pour l'ensolement
 #ifndef ENSOLEMENT_TEST_H
 #define ENSOLEMENT_TEST_H
 
-#include "ensolement.h"
 #include <string>
 #include <unordered_map>
 
@@ -22,8 +21,12 @@ public:
     void runTests();
 
 protected:
-    bool test_1();
-    bool test_2();
+    bool test_simple1();
+    bool test_simple2();
+    bool test_simple3();
+    bool test_impossible_simple1();
+    bool test_impossible_simple2();
+    bool test_impossible_simple3();
 };
 
 #endif

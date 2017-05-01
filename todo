@@ -1,6 +1,5 @@
 Voici la liste des évolutions futures:
 
-- Ecrire des tests
 - Accepter l'historique des parcelles via fichier de configuration
 - Une culture peut rester plusieurs années sur une parcelle
 - Ajouter valider le fait que toutes les cultures interditent existent dans la liste des cultures

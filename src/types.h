@@ -41,7 +41,6 @@ inline std::ostream& operator<< (std::ostream & out, Culture const& culture) {
             out << culture.precedentesCulturesInterdites[i] << " ";
         }
     }
-    out << std::endl;
     return out;
 }
 
